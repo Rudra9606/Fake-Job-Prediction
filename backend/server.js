@@ -15,6 +15,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Request logger middleware
+app.use((req, res, next) => {
+  console.log(`[Backend Request] ${req.method} ${req.url}`);
+  res.on('finish', () => {
+    console.log(`[Backend Response] ${req.method} ${req.url} - Status: ${res.statusCode}`);
+  });
+  next();
+});
+
 // Routes Files
 const authRoutes = require('./routes/authRoutes');
 const analysisRoutes = require('./routes/analysisRoutes');

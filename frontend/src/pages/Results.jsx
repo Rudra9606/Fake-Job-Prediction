@@ -33,7 +33,7 @@ const Results = () => {
 
   if (loading) {
     return (
-      <div className="flex h-[70vh] items-center justify-center bg-[#080808]">
+      <div className="flex h-[70vh] items-center justify-center bg-zinc-950">
         <div className="space-y-4 text-center">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-purple-500 border-t-transparent mx-auto"></div>
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Compiling Risk Report...</p>
@@ -155,7 +155,7 @@ const Results = () => {
 
             {/* Inner Score Label */}
             <div className="flex flex-col items-center justify-center">
-              <span className="text-5xl font-black text-slate-100 tracking-tighter">{analysis.trustScore}%</span>
+              <span className="text-3xl font-extrabold text-slate-100 tracking-tight">{Math.round(analysis.trustScore)}%</span>
               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Trust Score</span>
             </div>
           </div>

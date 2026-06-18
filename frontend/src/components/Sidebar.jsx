@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { 
   FileText, ShieldAlert, Globe, Mail, Link2, 
   BarChart3, History, MessageSquare, LayoutDashboard,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -36,8 +36,8 @@ const Sidebar = () => {
         className="hidden md:flex flex-col shrink-0 sticky top-24 h-[calc(100vh-8rem)] rounded-[32px] border border-zinc-800 bg-zinc-900/30 backdrop-blur-2xl p-4 shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] z-30 select-none justify-between"
       >
         <div className="space-y-6">
-          {/* Header Title */}
-          <div className="px-3 pb-3 border-b border-zinc-800 flex items-center justify-between">
+          {/* Header Title & Collapse Button */}
+          <div className={`pb-3 border-b border-zinc-800 flex items-center w-full ${isExpanded ? 'px-3 justify-between' : 'justify-center'}`}>
             <AnimatePresence mode="wait">
               {isExpanded ? (
                 <motion.h3 
@@ -49,18 +49,25 @@ const Sidebar = () => {
                 >
                   Scanners & Tools
                 </motion.h3>
-              ) : (
-                <motion.span 
-                  key="collapsed-title"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-[10px] font-black text-slate-500 mx-auto"
-                >
-                  SHIELD
-                </motion.span>
-              )}
+              ) : null}
             </AnimatePresence>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsExpanded(!isExpanded)}
+              className={isExpanded 
+                ? "p-1.5 rounded-lg border border-zinc-800 bg-zinc-900/30 text-slate-400 hover:text-slate-100 cursor-pointer transition-all flex items-center justify-center ml-2" 
+                : "w-full py-3 rounded-2xl border border-zinc-800 bg-zinc-900/30 text-purple-400 hover:text-slate-100 cursor-pointer transition-all flex items-center justify-center"
+              }
+              title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+            >
+              {isExpanded ? (
+                <ChevronLeft className="h-4 w-4 text-purple-400" />
+              ) : (
+                <Menu className="h-5 w-5 text-purple-400" />
+              )}
+            </motion.button>
           </div>
 
           {/* Navigation Links */}
@@ -71,7 +78,9 @@ const Sidebar = () => {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  className="relative flex items-center rounded-2xl px-4 py-3 text-[11px] font-semibold tracking-wide transition-colors duration-200 text-zinc-400 hover:text-zinc-100 group"
+                  className={`relative flex items-center rounded-2xl py-3 text-[11px] font-semibold tracking-wide transition-colors duration-200 text-zinc-400 hover:text-zinc-100 group ${
+                    isExpanded ? 'px-4 justify-start' : 'px-0 justify-center'
+                  }`}
                 >
                   {({ isActive }) => (
                     <>
@@ -105,24 +114,6 @@ const Sidebar = () => {
           </nav>
         </div>
 
-        {/* Footer: Toggle Button */}
-        <div className="pt-4 border-t border-zinc-800 flex justify-center">
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: 'rgba(255,255,255,0.05)' }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-center h-10 w-full rounded-2xl border border-zinc-800 bg-zinc-900/30 text-slate-400 hover:text-slate-100 cursor-pointer transition-colors"
-          >
-            {isExpanded ? (
-              <div className="flex items-center space-x-2 text-[10px] font-bold uppercase tracking-wider">
-                <ChevronLeft className="h-4 w-4 text-purple-400" />
-                <span>Collapse Panel</span>
-              </div>
-            ) : (
-              <ChevronRight className="h-4 w-4 text-purple-400" />
-            )}
-          </motion.button>
-        </div>
       </motion.aside>
 
       {/* Mobile Floating Bottom Bar */}

@@ -85,10 +85,14 @@ const UserDashboard = () => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-6xl mx-auto px-4 py-6 space-y-8"
+      className="max-w-6xl mx-auto px-4 py-6 space-y-8 relative overflow-hidden"
     >
+      {/* Ambient glows */}
+      <div className="absolute top-0 right-1/4 w-[350px] h-[350px] rounded-full bg-purple-600/5 blur-[120px] pointer-events-none z-0" />
+      <div className="absolute bottom-0 left-1/4 w-[350px] h-[350px] rounded-full bg-cyan-600/5 blur-[120px] pointer-events-none z-0" />
+
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
         <div>
           <span className="text-xs font-bold text-purple-400 uppercase tracking-widest block mb-1">Secure Account Center</span>
           <h1 className="text-3xl font-black text-slate-100 tracking-tight">Security Command Center</h1>
@@ -115,7 +119,7 @@ const UserDashboard = () => {
         <div className="glass-panel p-8 text-center text-xs text-red-400 rounded-3xl border border-red-500/25 bg-red-950/5">{error}</div>
       ) : (
         /* Bento Grid Layout */
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 relative z-10">
           
           {/* Card 1: Overview Banner (Profile Completion style) */}
           <div className="md:col-span-8 glass-panel p-6 sm:p-8 rounded-3xl border border-white/5 bg-zinc-950/40 backdrop-blur-xl relative overflow-hidden flex flex-col justify-between min-h-[220px]">

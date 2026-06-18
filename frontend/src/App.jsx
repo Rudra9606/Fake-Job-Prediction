@@ -28,6 +28,9 @@ import Contact from './pages/Contact';
 import AdminPanel from './pages/AdminPanel';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+
 
 // Layout wrapper for pages containing Sidebar + Content area
 const AppLayout = () => {
@@ -92,10 +95,14 @@ const App = () => {
           <Route path="/scam-awareness" element={<ScamAwareness />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot_password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/reset_password/:token" element={<ResetPassword />} />
         </Route>
 
-        {/* Pages with sidebar navigation layout */}
-        <Route element={<AppLayout />}>
+        {/* Pages with sidebar navigation layout - Login Required */}
+        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
           <Route path="/analyze" element={<JobAnalysis />} />
           <Route path="/results/:id" element={<Results />} />
           <Route path="/detailed-report/:id" element={<DetailedReport />} />
@@ -106,16 +113,7 @@ const App = () => {
           <Route path="/community-reports" element={<CommunityReporting />} />
           <Route path="/analytics" element={<ResearchAnalytics />} />
           <Route path="/contact" element={<Contact />} />
-          
-          {/* Protected user dashboard */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                <UserDashboard />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/dashboard" element={<UserDashboard />} />
 
           {/* Protected admin dashboard */}
           <Route 

@@ -51,11 +51,15 @@ const authSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
+    registerSuccess: (state) => {
+      state.loading = false;
+      state.error = null;
+    },
     clearError: (state) => {
       state.error = null;
     }
   }
 });
 
-export const { authStart, authSuccess, authFailure, logout, clearError } = authSlice.actions;
+export const { authStart, authSuccess, authFailure, logout, clearError, registerSuccess } = authSlice.actions;
 export default authSlice.reducer;
