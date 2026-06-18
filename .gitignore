@@ -1,0 +1,28 @@
+node_modules/
+**/node_modules/
+
+.env
+.env.local
+
+dist/
+build/
+
+__pycache__/
+*.pyc
+
+.vscode/
+
+# Machine Learning Models
+*.safetensors
+*.pt
+*.pth
+*.joblib
+*.keras
+*.pkl
+*.bin
+
+# Datasets
+data/*.csv
+
+# Checkpoints and training artifacts
+results/bert_checkpoints/

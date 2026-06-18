@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FakeJobShield Demo</title>
+  <style>
+    :root { --bg: #0f172a; --card: #1e293b; --accent: #38bdf8; --danger: #f87171; --ok: #4ade80; --warn: #fbbf24; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: #e2e8f0; margin: 0; padding: 2rem; }
+    h1 { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; max-width: 1100px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); padding: 1.25rem; border-radius: 12px; }
+    label { display: block; margin-top: 0.75rem; font-size: 0.85rem; color: #94a3b8; }
+    input, textarea { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #e2e8f0; }
+    textarea { min-height: 120px; }
+    button { margin-top: 1rem; background: var(--accent); color: #0f172a; border: none; padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .score { font-size: 3rem; font-weight: 700; }
+    .badge { display: inline-block; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.85rem; margin-top: 0.5rem; }
+    .high_trust { background: #14532d; color: var(--ok); }
+    .moderate { background: #713f12; color: var(--warn); }
+    .high_risk { background: #7f1d1d; color: var(--danger); }
+    ul { padding-left: 1.2rem; }
+    li { margin: 0.35rem 0; }
+  </style>
+</head>
+<body>
+  <h1>FakeJobShield</h1>
+  <p>Hybrid AI + Cybersecurity trust scoring for job advertisements</p>
+  <div class="grid">
+    <div class="card">
+      <h2>Job Post</h2>
+      <label>Title<input id="title" value="Urgent Work From Home — Instant Hire" /></label>
+      <label>Contact Email<input id="email" value="recruiter@gmail.com" /></label>
+      <label>Company Profile<textarea id="company"></textarea></label>
+      <label>Description<textarea id="description">Immediate hiring! Send your bank details and OTP for verification. No interview needed. Guaranteed $5000/week.</textarea></label>
+      <label>Requirements<textarea id="requirements"></textarea></label>
+      <button onclick="analyze()">Analyze Trust Score</button>
+    </div>
+    <div class="card">
+      <h2>Result</h2>
+      <div id="out">Submit a job post to see trust score.</div>
+    </div>
+  </div>
+  <script>
+    async function analyze() {
+      const body = {
+        title: document.getElementById('title').value,
+        contact_email: document.getElementById('email').value,
+        company_profile: document.getElementById('company').value,
+        description: document.getElementById('description').value,
+        requirements: document.getElementById('requirements').value,
+      };
+      const res = await fetch('/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const data = await res.json();
+      const reasons = data.reasons.map(r => `<li>${r}</li>`).join('');
+      document.getElementById('out').innerHTML = `
+        <div class="score">${data.trust_score}/100</div>
+        <span class="badge ${data.risk_band}">${data.badge}</span>
+        <p>Text risk: ${(data.p_fake_text * 100).toFixed(1)}% · Security risk: ${(data.p_fake_security * 100).toFixed(1)}%</p>
+        <p>Predicted: <strong>${data.predicted_label}</strong></p>
+        <h3>Reasons</h3><ul>${reasons}</ul>`;
+    }
+  </script>
+</body>
+</html>

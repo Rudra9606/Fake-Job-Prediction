@@ -1,0 +1,205 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Light Theme Mode variables */
+  --bg-raw: 243 244 246; /* light grey #f3f4f6 */
+  --text-raw: 15 23 42; /* dark slate #0f172a */
+  --muted-raw: 71 85 105; /* slate-600 #475569 */
+  --border-raw: 226 232 240; /* light grey border #e2e8f0 */
+  --panel-raw: 255 255 255; /* pure white panel */
+  --glow-raw: 99 102 241; /* indigo glow */
+}
+
+.dark {
+  /* Dark Theme Mode variables (Midnight Indigo) */
+  --bg-raw: 8 12 24; /* deep navy/indigo #080c18 */
+  --text-raw: 241 245 249; /* light slate #f1f5f9 */
+  --muted-raw: 148 163 184; /* slate-400 #94a3b8 */
+  --border-raw: 30 41 59; /* slate-800 #1e293b */
+  --panel-raw: 15 23 42; /* slate-900 #0f172a */
+  --glow-raw: 139 92 246; /* purple glow */
+}
+
+@theme {
+  /* Dynamic mappings for standard Tailwind color utility classes */
+  --color-zinc-950: rgb(var(--bg-raw));
+  --color-zinc-900: rgb(var(--panel-raw));
+  --color-zinc-800: rgb(var(--border-raw));
+  --color-zinc-700: rgb(var(--border-raw));
+  --color-zinc-650: rgb(var(--border-raw));
+  --color-zinc-600: rgb(var(--muted-raw));
+  --color-zinc-500: rgb(var(--muted-raw));
+  --color-zinc-400: rgb(var(--muted-raw));
+  --color-zinc-300: rgb(var(--text-raw));
+  --color-zinc-200: rgb(var(--text-raw));
+  --color-zinc-100: rgb(var(--text-raw));
+  
+  --color-slate-950: rgb(var(--bg-raw));
+  --color-slate-900: rgb(var(--panel-raw));
+  --color-slate-800: rgb(var(--border-raw));
+  --color-slate-700: rgb(var(--border-raw));
+  --color-slate-650: rgb(var(--border-raw));
+  --color-slate-600: rgb(var(--muted-raw));
+  --color-slate-500: rgb(var(--muted-raw));
+  --color-slate-400: rgb(var(--muted-raw));
+  --color-slate-300: rgb(var(--text-raw));
+  --color-slate-200: rgb(var(--text-raw));
+  --color-slate-100: rgb(var(--text-raw));
+}
+
+body {
+  background-color: rgb(var(--bg-raw));
+  color: rgb(var(--text-raw));
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(var(--glow-raw), 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(var(--glow-raw), 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Dynamic border overrides for border-white/5 and border-white/10 to adapt in Light Mode */
+.border-white\/5 {
+  border-color: rgba(var(--border-raw), 0.45) !important;
+}
+.border-white\/10 {
+  border-color: rgba(var(--border-raw), 0.75) !important;
+}
+.border-b-white\/5 {
+  border-bottom-color: rgba(var(--border-raw), 0.45) !important;
+}
+.border-t-white\/5 {
+  border-top-color: rgba(var(--border-raw), 0.45) !important;
+}
+.border-r-white\/5 {
+  border-right-color: rgba(var(--border-raw), 0.45) !important;
+}
+.border-l-white\/5 {
+  border-left-color: rgba(var(--border-raw), 0.45) !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+.dark ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.25);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+/* Glassmorphism Styles */
+.glass-panel {
+  background: rgba(var(--panel-raw), 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgb(var(--border-raw));
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.dark .glass-panel {
+  background: rgba(var(--panel-raw), 0.55);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(var(--panel-raw), 0.85);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
+}
+.dark .glass-panel-hover:hover {
+  background: rgba(var(--panel-raw), 0.75);
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
+}
+
+/* Bento Grid Card */
+.bento-card {
+  background: rgba(var(--panel-raw), 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgb(var(--border-raw));
+  @apply rounded-2xl p-6 transition-all duration-300;
+}
+.dark .bento-card {
+  background: rgba(var(--panel-raw), 0.55);
+}
+
+/* Accent Glow */
+.glow-indigo {
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.08);
+}
+.dark .glow-indigo {
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.08);
+}
+.dark .glow-emerald {
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+}
+
+.glow-red {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.08);
+}
+.dark .glow-red {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.15);
+}
+
+.glow-amber {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.08);
+}
+.dark .glow-amber {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.15);
+}
+
+/* Dynamic Gradients */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500;
+}
+.dark .text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
+}
+
+.bg-gradient-indigo {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+/* Speedometer animation keyframes */
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Theme responsive form inputs override */
+input, textarea {
+  background-color: rgba(var(--panel-raw), 0.9) !important;
+  border-color: rgb(var(--border-raw)) !important;
+  color: rgb(var(--text-raw)) !important;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+input:focus, textarea:focus {
+  border-color: #6366f1 !important;
+  background-color: rgb(var(--panel-raw)) !important;
+}

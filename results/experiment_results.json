@@ -1,0 +1,146 @@
+{
+  "research_questions_addressed": {
+    "RQ1_hybrid_vs_text": 0.0182648401826484,
+    "RQ3_fpr_improvement": 0.0007457121551081282
+  },
+  "metrics": {
+    "text_only_extra_trees": {
+      "accuracy": 0.9832214765100671,
+      "precision": 0.9775280898876404,
+      "recall": 0.6692307692307692,
+      "f1": 0.7945205479452054,
+      "roc_auc": 0.9922459006510731,
+      "false_positive_rate": 0.0007457121551081282,
+      "false_negative_rate": 0.01603281133482476
+    },
+    "security_only": {
+      "accuracy": 0.9291573452647278,
+      "precision": 0.35436893203883496,
+      "recall": 0.5615384615384615,
+      "f1": 0.43452380952380953,
+      "roc_auc": 0.8697627803231253,
+      "false_positive_rate": 0.04958985831469053,
+      "false_negative_rate": 0.021252796420581657
+    },
+    "fakejobshield_hybrid": {
+      "accuracy": 0.9847129008202834,
+      "precision": 1.0,
+      "recall": 0.6846153846153846,
+      "f1": 0.8127853881278538,
+      "roc_auc": 0.9727905714974682,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 0.015287099179716629
+    },
+    "text_only_no_metadata": {
+      "accuracy": 0.9847129008202834,
+      "precision": 0.989010989010989,
+      "recall": 0.6923076923076923,
+      "f1": 0.8144796380090498,
+      "roc_auc": 0.9879536411863998,
+      "false_positive_rate": 0.0003728560775540641,
+      "false_negative_rate": 0.014914243102162566
+    }
+  },
+  "trust_score_stats": {
+    "mean_fake": 38.36153846153846,
+    "mean_real": 80.08150470219435
+  },
+  "case_studies": [
+    {
+      "trust_score": 15,
+      "risk_band": "high_risk",
+      "badge": "Likely Fraud",
+      "predicted_label": "fake",
+      "p_fake_text": 0.99,
+      "p_fake_security": 0.5833,
+      "reasons": [
+        "Recruiter uses personal email (Gmail/Yahoo/etc.)",
+        "Associated domain appears newly registered (<90 days)",
+        "Post requests sensitive data (bank, OTP, ID, fees)",
+        "Job not verified on official careers page",
+        "ML text model: 99% fake probability"
+      ],
+      "security_flags": {
+        "uses_personal_email": true,
+        "email_domain_mismatch": false,
+        "young_domain": true,
+        "suspicious_url": false,
+        "requests_sensitive_data": true,
+        "high_urgency": false,
+        "no_careers_match": true,
+        "weak_company_profile": false
+      },
+      "actual_label": "fake"
+    },
+    {
+      "trust_score": 58,
+      "risk_band": "moderate",
+      "badge": "Review Carefully",
+      "predicted_label": "real",
+      "p_fake_text": 0.48,
+      "p_fake_security": 0.4583,
+      "reasons": [
+        "Recruiter uses personal email (Gmail/Yahoo/etc.)",
+        "Associated domain appears newly registered (<90 days)",
+        "Job not verified on official careers page",
+        "Weak company profile and missing logo"
+      ],
+      "security_flags": {
+        "uses_personal_email": true,
+        "email_domain_mismatch": false,
+        "young_domain": true,
+        "suspicious_url": false,
+        "requests_sensitive_data": false,
+        "high_urgency": false,
+        "no_careers_match": true,
+        "weak_company_profile": true
+      },
+      "actual_label": "fake"
+    },
+    {
+      "trust_score": 94,
+      "risk_band": "high_trust",
+      "badge": "Verified Low Risk",
+      "predicted_label": "real",
+      "p_fake_text": 0.1167,
+      "p_fake_security": 0.0,
+      "reasons": [
+        "ML text model: 12% fake probability (low text risk)"
+      ],
+      "security_flags": {
+        "uses_personal_email": false,
+        "email_domain_mismatch": false,
+        "young_domain": false,
+        "suspicious_url": false,
+        "requests_sensitive_data": false,
+        "high_urgency": false,
+        "no_careers_match": false,
+        "weak_company_profile": false
+      },
+      "actual_label": "real"
+    },
+    {
+      "trust_score": 97,
+      "risk_band": "high_trust",
+      "badge": "Verified Low Risk",
+      "predicted_label": "real",
+      "p_fake_text": 0.0,
+      "p_fake_security": 0.0833,
+      "reasons": [
+        "Weak company profile and missing logo",
+        "ML text model: 0% fake probability (low text risk)"
+      ],
+      "security_flags": {
+        "uses_personal_email": false,
+        "email_domain_mismatch": false,
+        "young_domain": false,
+        "suspicious_url": false,
+        "requests_sensitive_data": false,
+        "high_urgency": false,
+        "no_careers_match": false,
+        "weak_company_profile": true
+      },
+      "actual_label": "real"
+    }
+  ]
+}
