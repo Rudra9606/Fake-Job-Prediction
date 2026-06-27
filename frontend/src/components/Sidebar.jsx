@@ -1,111 +1,86 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../store/authSlice';
 import { 
-  FileText, ShieldAlert, Globe, Mail, Link2, 
-  BarChart3, History, MessageSquare, LayoutDashboard,
-  ChevronLeft, ChevronRight, Menu
+  LayoutDashboard, FileText, Globe, ShieldAlert, Activity, 
+  History, Users, Settings, HelpCircle, LogOut, Shield, Menu, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Sidebar = () => {
+const Sidebar = ({ onLockdown }) => {
   const { user } = useSelector((state) => state.auth);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(false); // Mobile sidebar state
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
 
   const menuItems = [
-    { name: 'Job Scanner', path: '/analyze', icon: FileText },
-    { name: 'Domain Checker', path: '/domain-verify', icon: Globe },
-    { name: 'Email Checker', path: '/email-verify', icon: Mail },
-    { name: 'URL Scanner', path: '/url-scan', icon: Link2 },
-    { name: 'Community Reports', path: '/community-reports', icon: ShieldAlert },
-    { name: 'Research Analytics', path: '/analytics', icon: BarChart3 },
-    { name: 'User Dashboard', path: '/dashboard', icon: History },
-    { name: 'Contact & Feedback', path: '/contact', icon: MessageSquare },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Forensics', path: '/analyze', icon: FileText },
+    { name: 'Verification', path: '/domain-verify', icon: Globe },
+    { name: 'Risk Alerts', path: '/community-reports', icon: ShieldAlert },
+    { name: 'Analytics', path: '/network-analysis', icon: Activity },
+    { name: 'Reports', path: '/audit-logs', icon: History },
+    { name: 'Directory', path: '/directory', icon: Users },
   ];
 
+  // Admin users link
   if (user?.role === 'admin') {
-    menuItems.push({ name: 'Admin Dashboard', path: '/admin', icon: LayoutDashboard });
+    menuItems.push({ name: 'Users', path: '/admin', icon: Users });
   }
 
-  return (
-    <>
-      {/* Sidebar - Desktop VisionOS Glass Dock */}
-      <motion.aside 
-        animate={{ width: isExpanded ? 260 : 76 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-        className="hidden md:flex flex-col shrink-0 sticky top-24 h-[calc(100vh-8rem)] rounded-[32px] border border-zinc-800 bg-zinc-900/30 backdrop-blur-2xl p-4 shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] z-30 select-none justify-between"
-      >
-        <div className="space-y-6">
-          {/* Header Title & Collapse Button */}
-          <div className={`pb-3 border-b border-zinc-800 flex items-center w-full ${isExpanded ? 'px-3 justify-between' : 'justify-center'}`}>
-            <AnimatePresence mode="wait">
-              {isExpanded ? (
-                <motion.h3 
-                  key="expanded-title"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -10 }}
-                  className="text-[10px] font-black text-slate-500 uppercase tracking-widest"
-                >
-                  Scanners & Tools
-                </motion.h3>
-              ) : null}
-            </AnimatePresence>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsExpanded(!isExpanded)}
-              className={isExpanded 
-                ? "p-1.5 rounded-lg border border-zinc-800 bg-zinc-900/30 text-slate-400 hover:text-slate-100 cursor-pointer transition-all flex items-center justify-center ml-2" 
-                : "w-full py-3 rounded-2xl border border-zinc-800 bg-zinc-900/30 text-purple-400 hover:text-slate-100 cursor-pointer transition-all flex items-center justify-center"
-              }
-              title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
-            >
-              {isExpanded ? (
-                <ChevronLeft className="h-4 w-4 text-purple-400" />
-              ) : (
-                <Menu className="h-5 w-5 text-purple-400" />
-              )}
-            </motion.button>
+  const secondaryMenuItems = [
+    { name: 'Settings', path: '/settings', icon: Settings },
+    { name: 'Support', path: '/contact', icon: HelpCircle },
+  ];
+
+  const renderNavLinks = (isMobile = false) => {
+    const clickHandler = () => {
+      if (isMobile) setIsOpen(false);
+    };
+
+    return (
+      <div className="flex flex-col justify-between h-full">
+        <div className="space-y-6 flex-grow">
+          {/* Logo Section */}
+          <div className="pb-5 border-b border-[#C4D2E8] flex items-center w-full">
+            <div className="flex items-center space-x-3 pl-1">
+              <div className="h-10 w-10 rounded-xl bg-[#081B2F] flex items-center justify-center shrink-0 shadow-md">
+                <Shield className="h-5.5 w-5.5 text-[#A7F08C]" />
+              </div>
+              <div className="text-left leading-tight">
+                <h2 className="font-extrabold text-sm text-[#0D1B2A] tracking-tight">Fake Job Shield</h2>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Enterprise SaaS</span>
+              </div>
+            </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-2 max-h-[calc(100vh-18rem)] overflow-y-auto pr-1">
+          {/* Primary Navigation Links */}
+          <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  className={`relative flex items-center rounded-2xl py-3 text-[11px] font-semibold tracking-wide transition-colors duration-200 text-zinc-400 hover:text-zinc-100 group ${
-                    isExpanded ? 'px-4 justify-start' : 'px-0 justify-center'
-                  }`}
+                  onClick={clickHandler}
+                  className={({ isActive }) => 
+                    `flex items-center rounded-xl py-3 px-4 text-xs font-bold tracking-wide transition-all duration-200 group transform hover:translate-x-2 ${
+                      isActive 
+                        ? 'bg-[#A7F08C] text-[#0D1B2A] shadow-sm' 
+                        : 'text-[#6B7280] hover:text-[#0D1B2A] hover:bg-[#C8F7AE]/45'
+                    }`
+                  }
                 >
                   {({ isActive }) => (
                     <>
-                      {/* Active Sliding Pill Background */}
-                      {isActive && (
-                        <motion.div
-                          layoutId="activeDockBackground"
-                          className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-2xl -z-10 shadow-[0_0_20px_rgba(139,92,246,0.08)]"
-                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                        />
-                      )}
-
-                      {/* Icon */}
-                      <Icon className={`h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-purple-400' : 'text-slate-400 group-hover:text-purple-300'}`} />
-                      
-                      {/* Text */}
-                      {isExpanded && (
-                        <motion.span 
-                          initial={{ opacity: 0, x: -5 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="ml-4 whitespace-nowrap"
-                        >
-                          {item.name}
-                        </motion.span>
-                      )}
+                      <Icon className={`h-4.5 w-4.5 shrink-0 transition-colors duration-205 ${isActive ? 'text-[#0D1B2A]' : 'text-[#6B7280] group-hover:text-[#0D1B2A]'}`} />
+                      <span className="ml-3.5 whitespace-nowrap">{item.name}</span>
                     </>
                   )}
                 </NavLink>
@@ -114,29 +89,110 @@ const Sidebar = () => {
           </nav>
         </div>
 
-      </motion.aside>
+        {/* Bottom Section */}
+        <div className="pt-5 border-t border-[#C4D2E8] space-y-4">
+          <div className="space-y-1">
+            {secondaryMenuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={clickHandler}
+                  className={({ isActive }) => 
+                    `flex items-center rounded-xl py-3 px-4 text-xs font-bold tracking-wide transition-all duration-200 group transform hover:translate-x-2 ${
+                      isActive 
+                        ? 'bg-[#A7F08C] text-[#0D1B2A] shadow-sm' 
+                        : 'text-[#6B7280] hover:text-[#0D1B2A] hover:bg-[#C8F7AE]/45'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <Icon className={`h-4.5 w-4.5 shrink-0 transition-colors duration-205 ${isActive ? 'text-[#0D1B2A]' : 'text-[#6B7280] group-hover:text-[#0D1B2A]'}`} />
+                      <span className="ml-3.5 whitespace-nowrap">{item.name}</span>
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
 
-      {/* Mobile Floating Bottom Bar */}
-      <aside className="md:hidden fixed bottom-4 left-4 right-4 z-40 flex h-16 items-center justify-around rounded-2xl border border-zinc-800 bg-zinc-900/80 backdrop-blur-xl px-2 shadow-2xl">
-        {menuItems.slice(0, 5).map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                `flex flex-col items-center justify-center rounded-xl p-2 text-[10px] font-bold transition-all ${
-                  isActive
-                    ? 'text-purple-400 bg-purple-500/10'
-                    : 'text-slate-400'
-                }`
-              }
+            {/* Logout Trigger */}
+            <button
+              onClick={() => {
+                clickHandler();
+                handleLogout();
+              }}
+              className="w-full flex items-center rounded-xl py-3 px-4 text-xs font-bold tracking-wide transition-all duration-200 group transform hover:translate-x-2 text-[#E74C3C] hover:bg-red-50"
             >
-              <Icon className="h-5 w-5 mb-0.5" />
-            </NavLink>
-          );
-        })}
+              <LogOut className="h-4.5 w-4.5 shrink-0 text-[#E74C3C]" />
+              <span className="ml-3.5 whitespace-nowrap">Logout</span>
+            </button>
+          </div>
+
+          {/* User Profile Card */}
+          <div className="flex items-center justify-start space-x-3 p-3 rounded-xl bg-white border border-[#E3EAF5]">
+            <div className="h-9 w-9 rounded-full bg-[#081B2F] text-white text-xs font-bold flex items-center justify-center shrink-0">
+              {user?.name ? user.name.split(' ').map(n => n[0]).join('') : 'RJ'}
+            </div>
+            <div className="text-left overflow-hidden min-w-0">
+              <h4 className="text-[11px] font-bold text-[#132238] leading-tight truncate">{user?.name || 'Rudra Joshi'}</h4>
+              <span className="text-[9px] text-[#6B7280] font-semibold block truncate mt-0.5">{user?.role === 'admin' ? 'Security Administrator' : 'Security Analyst'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {/* Desktop Sidebar - Fixed Left Panel */}
+      <aside className="hidden md:flex flex-col shrink-0 sticky top-0 h-screen w-[250px] border-r border-[#E3EAF5] bg-[#DCE7F8] p-5 select-none overflow-hidden transition-all duration-300">
+        {renderNavLinks(false)}
       </aside>
+
+      {/* Mobile Header Bar */}
+      <header className="md:hidden flex items-center justify-between bg-[#DCE7F8] border-b border-[#E3EAF5] px-5 py-4 w-full sticky top-0 z-40">
+        <div className="flex items-center space-x-2.5">
+          <div className="h-8 w-8 rounded-lg bg-[#081B2F] flex items-center justify-center shadow-sm">
+            <Shield className="h-4.5 w-4.5 text-[#A7F08C]" />
+          </div>
+          <span className="font-extrabold text-sm text-[#0D1B2A] tracking-tight">Fake Job Shield</span>
+        </div>
+        <button 
+          onClick={() => setIsOpen(!isOpen)} 
+          className="p-2 rounded-lg bg-white border border-[#E3EAF5] text-[#0D1B2A] hover:bg-slate-50 transition-all cursor-pointer"
+        >
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </header>
+
+      {/* Mobile Drawer Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="md:hidden fixed inset-0 bg-[#0D1B2A]/40 backdrop-blur-xs z-40"
+            />
+            {/* Drawer */}
+            <motion.aside
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="md:hidden fixed top-0 bottom-0 left-0 w-[270px] bg-[#DCE7F8] border-r border-[#E3EAF5] p-5 z-50 flex flex-col justify-between shadow-2xl"
+            >
+              {renderNavLinks(true)}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };

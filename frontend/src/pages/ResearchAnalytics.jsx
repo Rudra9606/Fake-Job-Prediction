@@ -14,32 +14,34 @@ const ResearchAnalytics = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-12">
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-12 animate-fadeIn">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl sm:text-5xl font-bold text-gradient">Research Analytics</h1>
-        <p className="text-slate-400 text-sm max-w-xl mx-auto">
+      <div className="text-center space-y-3.5">
+        <h1 className="text-4xl sm:text-5xl font-black text-[#3b82f6] tracking-tight">
+          Research Analytics
+        </h1>
+        <p className="text-slate-400 text-[13px] font-semibold max-w-xl mx-auto leading-relaxed">
           Experimental model performance benchmarks trained on the Kaggle EMSCAD job advertisement corpus.
         </p>
       </div>
 
       {/* Model Performance Chart */}
-      <div className="glass-panel p-6 rounded-3xl glow-indigo space-y-6">
-        <div className="flex items-center space-x-3">
-          <BarChart3 className="h-6 w-6 text-indigo-400" />
-          <h2 className="text-lg font-bold text-slate-200">ML Classifier Benchmarking Comparison (%)</h2>
+      <div className="bg-white border border-slate-100 p-8 rounded-[24px] shadow-sm space-y-6">
+        <div className="flex items-center space-x-3 border-b border-slate-50 pb-4">
+          <BarChart3 className="h-5.5 w-5.5 text-indigo-500" />
+          <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">ML Classifier Benchmarking Comparison (%)</h2>
         </div>
         
-        <div className="h-96 w-full text-xs">
+        <div className="h-96 w-full text-[10px] font-bold">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={modelData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <BarChart data={modelData} margin={{ top: 20, right: 10, left: -25, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" />
               <XAxis dataKey="name" stroke="#64748b" />
               <YAxis domain={[70, 100]} stroke="#64748b" />
-              <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: 'rgba(255,255,255,0.1)', color: '#fff' }} />
-              <Legend />
-              <Bar dataKey="F1 Score" name="F1 Score" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="ROC AUC" name="ROC AUC" fill="#a855f7" radius={[4, 4, 0, 0]} />
+              <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#e2e8f0', color: '#0f172a', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} />
+              <Legend wrapperStyle={{ paddingTop: '15px' }} />
+              <Bar dataKey="F1" name="F1 Score" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="AUC" name="ROC AUC" fill="#a855f7" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Accuracy" name="Accuracy" fill="#10b981" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -50,52 +52,52 @@ const ResearchAnalytics = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
         
         {/* Left Side: Confusion Matrix UI */}
-        <div className="md:col-span-5 glass-panel p-6 rounded-2xl flex flex-col justify-between space-y-4">
-          <h3 className="font-bold text-slate-300 text-sm">XGBoost Tuned Confusion Matrix</h3>
+        <div className="md:col-span-5 bg-white border border-slate-200 p-6 rounded-[24px] shadow-sm flex flex-col justify-between space-y-5">
+          <h3 className="font-black text-slate-800 text-xs uppercase tracking-wider border-b border-slate-50 pb-3">XGBoost Tuned Confusion Matrix</h3>
           
-          <div className="grid grid-cols-2 gap-2 text-center text-xs font-semibold py-4">
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-emerald-500/10 space-y-1">
-              <span className="text-[10px] text-slate-500 block uppercase">True Negative (Genuine)</span>
-              <span className="text-xl font-bold text-emerald-400">2,540</span>
+          <div className="grid grid-cols-2 gap-3 text-center text-xs font-semibold py-2">
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">True Neg. (Genuine)</span>
+              <span className="text-xl font-black text-emerald-600">2,540</span>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-red-500/10 space-y-1">
-              <span className="text-[10px] text-slate-500 block uppercase">False Positive (Type I)</span>
-              <span className="text-xl font-bold text-red-400">12</span>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">False Pos. (Type I)</span>
+              <span className="text-xl font-black text-red-500">12</span>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-red-500/10 space-y-1">
-              <span className="text-[10px] text-slate-500 block uppercase">False Negative (Type II)</span>
-              <span className="text-xl font-bold text-red-400">8</span>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">False Neg. (Type II)</span>
+              <span className="text-xl font-black text-red-500">8</span>
             </div>
-            <div className="p-4 rounded-xl bg-slate-900/60 border border-emerald-500/10 space-y-1">
-              <span className="text-[10px] text-slate-500 block uppercase">True Positive (Scam)</span>
-              <span className="text-xl font-bold text-emerald-400">122</span>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
+              <span className="text-[9px] text-slate-400 block font-bold uppercase tracking-wider">True Pos. (Scam)</span>
+              <span className="text-xl font-black text-emerald-600">122</span>
             </div>
           </div>
 
-          <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+          <p className="text-[10px] text-slate-400 font-bold text-center leading-relaxed">
             Attributed values computed from 15% stratified test partition (total = 2,682 posts).
           </p>
         </div>
 
         {/* Right Side: Key Contributions */}
-        <div className="md:col-span-7 glass-panel p-6 rounded-2xl space-y-6">
-          <h3 className="font-bold text-slate-300 text-sm flex items-center space-x-2">
-            <Cpu className="h-4 w-4 text-indigo-400" />
+        <div className="md:col-span-7 bg-white border border-slate-200 p-6 rounded-[24px] shadow-sm space-y-6">
+          <h3 className="font-black text-slate-800 text-xs uppercase tracking-wider border-b border-slate-50 pb-3 flex items-center space-x-2">
+            <Cpu className="h-4.5 w-4.5 text-indigo-500" />
             <span>Research Contribution</span>
           </h3>
 
-          <div className="space-y-4 text-xs text-slate-400 leading-relaxed">
-            <div className="flex items-start space-x-3">
-              <ShieldCheck className="h-5 w-5 text-indigo-400 mt-0.5 flex-shrink-0" />
+          <div className="space-y-5 text-xs text-slate-500 font-semibold leading-relaxed">
+            <div className="flex items-start space-x-3.5">
+              <ShieldCheck className="h-5 w-5 text-indigo-500 mt-0.5 flex-shrink-0" />
               <p>
-                <span className="text-slate-200 font-semibold block mb-0.5">Hybrid Fusion Outperformance</span>
+                <strong className="text-slate-800 font-black block mb-0.5">Hybrid Fusion Outperformance</strong>
                 Combining text embedding arrays with expert cybersecurity indicators (registrars, mismatches) yields a 2.4% increase in F1-score compared to pure NLP classifiers.
               </p>
             </div>
-            <div className="flex items-start space-x-3">
-              <ShieldCheck className="h-5 w-5 text-indigo-400 mt-0.5 flex-shrink-0" />
+            <div className="flex items-start space-x-3.5">
+              <ShieldCheck className="h-5 w-5 text-indigo-500 mt-0.5 flex-shrink-0" />
               <p>
-                <span className="text-slate-200 font-semibold block mb-0.5">Low False Alarm Rate (FPR)</span>
+                <strong className="text-slate-800 font-black block mb-0.5">Low False Alarm Rate (FPR)</strong>
                 Adding domain age and SSL verifications helps filter out generic corporate emails, lowering False Positive Rates to only 0.47%.
               </p>
             </div>

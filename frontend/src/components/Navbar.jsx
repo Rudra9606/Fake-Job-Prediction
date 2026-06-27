@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../store/authSlice';
-import { Shield, LogIn, UserPlus, LogOut, User, LayoutDashboard, Sun, Moon } from 'lucide-react';
+import { Shield, LogIn, UserPlus, LogOut, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Navbar = () => {
@@ -11,49 +11,29 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('theme') || 'dark';
-  });
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   const handleLogout = () => {
     dispatch(logout());
     navigate('/');
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/90 dark:bg-zinc-950/40 backdrop-blur-md border-b border-gray-200 dark:border-zinc-800/80 py-4 transition-colors duration-300">
+    <nav className="sticky top-0 z-50 w-full bg-white border-b border-[#E3EAF5] py-4 select-none">
       <div className="mx-auto max-w-[1500px] px-6 lg:px-10">
         <div className="flex h-12 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2.5 group">
-              <motion.div 
-                whileHover={{ rotate: 15, scale: 1.05 }}
-                className="h-10 w-10 rounded-xl bg-gray-100 dark:bg-zinc-900/50 border border-gray-200 dark:border-purple-500/30 flex items-center justify-center transition-all shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.05)]"
-              >
-                <Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </motion.div>
-              <span className="font-black tracking-tight text-lg transition-all text-gray-900 dark:text-white">
-                Fake<span className="text-purple-600 dark:text-purple-400">Job</span>Shield
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="h-10 w-10 rounded-xl bg-[#081B2F] flex items-center justify-center transition-all shadow-sm">
+                <Shield className="h-5.5 w-5.5 text-[#A7F08C]" />
+              </div>
+              <span className="font-extrabold tracking-tight text-lg text-[#132238]">
+                Fake Job <span className="text-[#6B7280]">Shield</span>
               </span>
             </Link>
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-8 text-xs font-bold tracking-wide uppercase">
+          <div className="hidden md:flex items-center space-x-8 text-xs font-bold tracking-wider uppercase">
             {[
               { name: 'Home', path: '/' },
               { name: 'About', path: '/about' },
@@ -65,19 +45,17 @@ const Navbar = () => {
                 <Link 
                   key={link.path}
                   to={link.path} 
-                  className={`relative py-1.5 transition-all flex items-center ${
+                  className={`relative py-2 transition-all flex items-center ${
                     active 
-                      ? 'text-purple-600 dark:text-purple-400 font-extrabold' 
-                      : 'text-gray-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-purple-400'
+                      ? 'text-[#081B2F] font-extrabold' 
+                      : 'text-[#6B7280] hover:text-[#081B2F]'
                   }`}
                 >
-                  <motion.span whileHover={{ y: -1 }} transition={{ duration: 0.2 }}>
-                    {link.name}
-                  </motion.span>
+                  <span>{link.name}</span>
                   {active && (
                     <motion.div 
-                      layoutId="navActiveLine"
-                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-purple-600 dark:bg-purple-500 rounded-full"
+                      layoutId="navActiveLineLanding"
+                      className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#081B2F] rounded-full"
                       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -88,66 +66,47 @@ const Navbar = () => {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-3">
-            {/* Theme Toggle Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={toggleTheme}
-              className="p-2.5 rounded-xl border border-gray-200 dark:border-zinc-800 bg-gray-100/50 dark:bg-zinc-900/40 text-gray-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-zinc-100 transition-all cursor-pointer flex items-center justify-center"
-              title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-4 w-4 text-amber-400 transition-transform duration-300 hover:rotate-45" />
-              ) : (
-                <Moon className="h-4 w-4 text-indigo-600 transition-transform duration-300 hover:-rotate-12" />
-              )}
-            </motion.button>
-
             {isAuthenticated ? (
               <div className="flex items-center space-x-3">
                 <Link
                   to="/dashboard"
-                  className="flex items-center space-x-1.5 rounded-xl border border-gray-200 dark:border-zinc-800/80 bg-gray-100/80 dark:bg-zinc-900/50 px-4 py-2.5 text-xs font-bold text-gray-700 dark:text-zinc-300 hover:bg-gray-200/50 dark:hover:bg-zinc-900 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
+                  className="flex items-center space-x-1.5 rounded-xl border border-[#E3EAF5] bg-[#F7FAFD] px-4.5 py-2.5 text-xs font-bold text-[#132238] hover:bg-[#E3EAF5]/50 transition-all shadow-sm"
                 >
-                  <LayoutDashboard className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <LayoutDashboard className="h-4 w-4 text-[#132238]" />
                   <span>Dashboard</span>
                 </Link>
                 {user?.role === 'admin' && (
                   <Link
                     to="/admin"
-                    className="hidden sm:inline-flex rounded-xl bg-purple-500/10 border border-purple-500/20 px-3.5 py-2.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 transition-all"
+                    className="hidden sm:inline-flex rounded-xl bg-[#E8F8F0] border border-[#BCE8D1] px-4.5 py-2.5 text-xs font-bold text-[#2E855A] hover:bg-[#d1fae5] transition-all"
                   >
                     Admin Panel
                   </Link>
                 )}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-1.5 rounded-xl border border-red-500/20 dark:border-red-500/10 bg-red-500/5 px-4 py-2.5 text-xs font-bold text-red-500 dark:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                  className="flex items-center space-x-1.5 rounded-xl border border-red-200 bg-red-50 px-4.5 py-2.5 text-xs font-bold text-[#E74C3C] hover:bg-red-100 transition-all cursor-pointer"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4 text-[#E74C3C]" />
                   <span className="hidden sm:inline">Logout</span>
-                </motion.button>
+                </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2.5">
+              <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="flex items-center space-x-1.5 rounded-xl border border-gray-200 dark:border-zinc-800/80 bg-gray-100/80 dark:bg-zinc-900/50 px-4 py-2.5 text-xs font-bold text-gray-700 dark:text-zinc-300 hover:bg-gray-200/50 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white transition-all"
+                  className="flex items-center space-x-1.5 rounded-xl border border-[#E3EAF5] bg-white px-4.5 py-2.5 text-xs font-bold text-[#132238] hover:bg-slate-50 transition-all"
                 >
-                  <LogIn className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <LogIn className="h-4 w-4 text-[#132238]" />
                   <span>Login</span>
                 </Link>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                  <Link
-                    to="/register"
-                    className="flex items-center space-x-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 hover:brightness-105 transition-all"
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    <span>Sign Up</span>
-                  </Link>
-                </motion.div>
+                <Link
+                  to="/register"
+                  className="flex items-center space-x-1.5 rounded-xl bg-[#081B2F] hover:bg-[#102840] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-all"
+                >
+                  <UserPlus className="h-4 w-4 text-white" />
+                  <span>Sign Up</span>
+                </Link>
               </div>
             )}
           </div>

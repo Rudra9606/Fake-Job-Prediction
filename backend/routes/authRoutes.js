@@ -7,6 +7,10 @@ const {
   forgotPassword,
   verifyOTP,
   resetPassword,
+  getNotifications,
+  markNotificationRead,
+  getAllUsers,
+  sendUserMessage,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
@@ -19,5 +23,15 @@ router.get('/me', protect, getMe);
 router.post('/forgotpassword', forgotPassword);
 router.post('/verify-otp', verifyOTP);
 router.put('/resetpassword', resetPassword);
+
+// User notification routes
+router.get('/notifications', protect, getNotifications);
+router.put('/notifications/:id/read', protect, markNotificationRead);
+
+// User directory route
+router.get('/users', protect, getAllUsers);
+
+// Chat messaging route
+router.post('/messages', protect, sendUserMessage);
 
 module.exports = router;

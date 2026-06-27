@@ -2,6 +2,7 @@ const JobAnalysis = require('../models/JobAnalysis');
 const User = require('../models/User');
 const SystemAnalytics = require('../models/SystemAnalytics');
 const AuditLog = require('../models/AuditLog');
+const BlockedDomain = require('../models/BlockedDomain');
 const axios = require('axios');
 
 // Free email domains helper
@@ -41,8 +42,7 @@ const extractSecurityFlags = (text, email, website, company) => {
   // 3. High Urgency
   const high_urgency = /urgent|immediately|act now|limited slots|guaranteed|instant hire|quick money|easy money/i.test(text);
 
-  // 4. Suspicious URLs
-  const suspicious_url = /bit\.ly|tinyurl|goo\.gl|\.tk/i.test(text) || (website && /bit\.ly|tinyurl|goo\.gl/i.test(website));
+  const suspicious_url = /bit\.ly|tinyurl|goo\.gl|\.tk/i.test(text) || !!(website && /bit\.ly|tinyurl|goo\.gl/i.test(website));
 
   // 5. Weak Profile
   const weak_company_profile = company.length < 3 || text.length < 100;
@@ -81,6 +81,35 @@ exports.analyzeJob = async (req, res) => {
       });
     }
 
+    // Check if recruiter email domain or company website domain is in the blacklist
+    let isBlacklisted = false;
+    let blacklistReason = '';
+    
+    try {
+      const blockedDomains = await BlockedDomain.find();
+      const blockedSet = new Set(blockedDomains.map(d => d.domain.toLowerCase().trim()));
+      
+      if (recruiterEmail && recruiterEmail.includes('@')) {
+        const emailDomain = recruiterEmail.split('@')[1].toLowerCase().trim();
+        if (blockedSet.has(emailDomain)) {
+          isBlacklisted = true;
+          const matched = blockedDomains.find(d => d.domain.toLowerCase().trim() === emailDomain);
+          blacklistReason = matched ? matched.reason : 'Domain is blacklisted';
+        }
+      }
+      
+      if (!isBlacklisted && companyWebsite) {
+        const cleanWebsite = companyWebsite.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').split('/')[0].trim();
+        if (blockedSet.has(cleanWebsite)) {
+          isBlacklisted = true;
+          const matched = blockedDomains.find(d => d.domain.toLowerCase().trim() === cleanWebsite);
+          blacklistReason = matched ? matched.reason : 'Domain is blacklisted';
+        }
+      }
+    } catch (err) {
+      console.error('Error checking blacklisted domains:', err);
+    }
+
     // Call Python FastAPI AI Service
     const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
     let fraudProbability = 0.05;
@@ -88,44 +117,51 @@ exports.analyzeJob = async (req, res) => {
     let riskLevel = 'Trusted';
     let explanation = ['AI Service unavailable: fell back to heuristics.'];
 
-    try {
-      const aiResponse = await axios.post(`${aiServiceUrl}/predict`, {
-        title,
-        description,
-        requirements: requirements || '',
-        benefits: benefits || '',
-      });
+    if (isBlacklisted) {
+      fraudProbability = 1.0;
+      trustScore = 0;
+      riskLevel = 'Highly Fraudulent';
+      explanation = [`Security Alert: Recruiter domain is blacklisted by administrator. Reason: ${blacklistReason}`];
+    } else {
+      try {
+        const aiResponse = await axios.post(`${aiServiceUrl}/predict`, {
+          title,
+          description,
+          requirements: requirements || '',
+          benefits: benefits || '',
+        });
 
-      if (aiResponse.data) {
-        fraudProbability = aiResponse.data.fraud_probability;
-        trustScore = aiResponse.data.trust_score;
-        riskLevel = aiResponse.data.risk_level;
-        explanation = aiResponse.data.explanation || [];
+        if (aiResponse.data) {
+          fraudProbability = aiResponse.data.fraud_probability;
+          trustScore = aiResponse.data.trust_score;
+          riskLevel = aiResponse.data.risk_level;
+          explanation = aiResponse.data.explanation || [];
+        }
+      } catch (aiErr) {
+        console.log(`FastAPI request failed: ${aiErr.message}. Running fallback local analysis.`);
+        // Fallback local heuristic scoring if FastAPI is down
+        const secFlags = extractSecurityFlags(description + " " + requirements, recruiterEmail, companyWebsite, company);
+        let penalty = 0;
+        if (secFlags.requests_sensitive_data) penalty += 0.35;
+        if (secFlags.uses_personal_email) penalty += 0.20;
+        if (secFlags.high_urgency) penalty += 0.15;
+        if (secFlags.suspicious_url) penalty += 0.15;
+        fraudProbability = Math.min(0.99, penalty + (description.length < 200 ? 0.20 : 0.05));
+        trustScore = Math.round((1 - fraudProbability) * 100);
+        
+        if (trustScore >= 81) riskLevel = 'Trusted';
+        else if (trustScore >= 61) riskLevel = 'Low Risk';
+        else if (trustScore >= 41) riskLevel = 'Medium Risk';
+        else if (trustScore >= 21) riskLevel = 'High Risk';
+        else riskLevel = 'Highly Fraudulent';
+
+        explanation = [
+          'Warning: Python AI FastAPI server is offline. Local heuristics computed the risk.',
+          secFlags.requests_sensitive_data ? 'Suspicious requests for sensitive data (bank/ID) found.' : null,
+          secFlags.uses_personal_email ? 'Recruiter email domain is a free public provider.' : null,
+          secFlags.high_urgency ? 'Pressure-inducing urgency language detected.' : null,
+        ].filter(Boolean);
       }
-    } catch (aiErr) {
-      console.log(`FastAPI request failed: ${aiErr.message}. Running fallback local analysis.`);
-      // Fallback local heuristic scoring if FastAPI is down
-      const secFlags = extractSecurityFlags(description + " " + requirements, recruiterEmail, companyWebsite, company);
-      let penalty = 0;
-      if (secFlags.requests_sensitive_data) penalty += 0.35;
-      if (secFlags.uses_personal_email) penalty += 0.20;
-      if (secFlags.high_urgency) penalty += 0.15;
-      if (secFlags.suspicious_url) penalty += 0.15;
-      fraudProbability = Math.min(0.99, penalty + (description.length < 200 ? 0.20 : 0.05));
-      trustScore = Math.round((1 - fraudProbability) * 100);
-      
-      if (trustScore >= 81) riskLevel = 'Trusted';
-      else if (trustScore >= 61) riskLevel = 'Low Risk';
-      else if (trustScore >= 41) riskLevel = 'Medium Risk';
-      else if (trustScore >= 21) riskLevel = 'High Risk';
-      else riskLevel = 'Highly Fraudulent';
-
-      explanation = [
-        'Warning: Python AI FastAPI server is offline. Local heuristics computed the risk.',
-        secFlags.requests_sensitive_data ? 'Suspicious requests for sensitive data (bank/ID) found.' : null,
-        secFlags.uses_personal_email ? 'Recruiter email domain is a free public provider.' : null,
-        secFlags.high_urgency ? 'Pressure-inducing urgency language detected.' : null,
-      ].filter(Boolean);
     }
 
     // Compute cybersecurity flags in Node.js

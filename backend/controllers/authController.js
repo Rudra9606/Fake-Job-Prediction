@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const AuditLog = require('../models/AuditLog');
 const SystemAnalytics = require('../models/SystemAnalytics');
+const Notification = require('../models/Notification');
 const { OAuth2Client } = require('google-auth-library');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
@@ -503,3 +504,98 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get user notifications
+// @route   GET /api/auth/notifications
+// @access  Private
+exports.getNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find({ user: req.user.id })
+      .sort('-createdAt')
+      .limit(50);
+
+    res.status(200).json({
+      success: true,
+      count: notifications.length,
+      data: notifications,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Mark notification as read
+// @route   PUT /api/auth/notifications/:id/read
+// @access  Private
+exports.markNotificationRead = async (req, res) => {
+  try {
+    const notification = await Notification.findById(req.params.id);
+    if (!notification) {
+      return res.status(404).json({ success: false, message: 'Notification not found' });
+    }
+
+    if (notification.user.toString() !== req.user.id) {
+      return res.status(401).json({ success: false, message: 'Not authorized to read this notification' });
+    }
+
+    notification.isRead = true;
+    await notification.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification marked as read',
+      data: notification,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get all users (directory listing for all authenticated users)
+// @route   GET /api/auth/users
+// @access  Private
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, 'name email role').sort('name');
+    res.status(200).json({
+      success: true,
+      count: users.length,
+      data: users,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Send a chat message/notification to another user
+// @route   POST /api/auth/messages
+// @access  Private
+exports.sendUserMessage = async (req, res) => {
+  try {
+    const { recipientId, message } = req.body;
+    if (!recipientId || !message) {
+      return res.status(400).json({ success: false, message: 'Please provide recipientId and message' });
+    }
+
+    const recipient = await User.findById(recipientId);
+    if (!recipient) {
+      return res.status(404).json({ success: false, message: 'Recipient user not found' });
+    }
+
+    // Create notification for recipient representing the chat message
+    const notification = await Notification.create({
+      user: recipientId,
+      message: `[Chat] ${req.user.name}: ${message}`,
+      type: 'info'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Message sent successfully!',
+      data: notification
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

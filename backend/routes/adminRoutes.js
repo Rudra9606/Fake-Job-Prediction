@@ -5,6 +5,10 @@ const {
   updateUserRole,
   deleteUser,
   getAuditLogs,
+  getBlockedDomains,
+  addBlockedDomain,
+  deleteBlockedDomain,
+  sendNotification,
 } = require('../controllers/adminController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -19,5 +23,13 @@ router.get('/users', getUsers);
 router.put('/users/:id/role', updateUserRole);
 router.delete('/users/:id', deleteUser);
 router.get('/logs', getAuditLogs);
+
+// Blacklist management routes
+router.get('/blacklist', getBlockedDomains);
+router.post('/blacklist', addBlockedDomain);
+router.delete('/blacklist/:id', deleteBlockedDomain);
+
+// Notification dispatch route
+router.post('/notifications', sendNotification);
 
 module.exports = router;

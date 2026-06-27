@@ -4,6 +4,8 @@ const ScamReport = require('../models/ScamReport');
 const Feedback = require('../models/Feedback');
 const AuditLog = require('../models/AuditLog');
 const SystemAnalytics = require('../models/SystemAnalytics');
+const BlockedDomain = require('../models/BlockedDomain');
+const Notification = require('../models/Notification');
 
 // @desc    Get system analytics and stats
 // @route   GET /api/admin/stats
@@ -168,3 +170,155 @@ exports.getAuditLogs = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get blocked domains
+// @route   GET /api/admin/blacklist
+// @access  Private/Admin
+exports.getBlockedDomains = async (req, res) => {
+  try {
+    const domains = await BlockedDomain.find()
+      .populate('addedBy', 'name email')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      count: domains.length,
+      data: domains,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Add a blocked domain
+// @route   POST /api/admin/blacklist
+// @access  Private/Admin
+exports.addBlockedDomain = async (req, res) => {
+  try {
+    const { domain, reason } = req.body;
+
+    if (!domain) {
+      return res.status(400).json({ success: false, message: 'Please provide a domain name' });
+    }
+
+    // Clean domain
+    const cleanDomain = domain.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').trim();
+
+    // Check if exists
+    const exists = await BlockedDomain.findOne({ domain: cleanDomain });
+    if (exists) {
+      return res.status(400).json({ success: false, message: 'Domain is already blacklisted' });
+    }
+
+    const blocked = await BlockedDomain.create({
+      domain: cleanDomain,
+      reason: reason || 'Suspicious or malicious activity',
+      addedBy: req.user.id,
+    });
+
+    // Log action
+    await AuditLog.create({
+      action: 'DOMAIN_BLACKLIST_ADDED',
+      actor: req.user.id,
+      ip: req.ip || '',
+      details: `Domain blacklisted: ${cleanDomain}. Reason: ${reason || 'None provided'}`,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Domain blacklisted successfully!',
+      data: blocked,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Delete a blocked domain
+// @route   DELETE /api/admin/blacklist/:id
+// @access  Private/Admin
+exports.deleteBlockedDomain = async (req, res) => {
+  try {
+    const blocked = await BlockedDomain.findById(req.params.id);
+    if (!blocked) {
+      return res.status(404).json({ success: false, message: 'Blacklisted domain not found' });
+    }
+
+    await BlockedDomain.findByIdAndDelete(req.params.id);
+
+    // Log action
+    await AuditLog.create({
+      action: 'DOMAIN_BLACKLIST_REMOVED',
+      actor: req.user.id,
+      ip: req.ip || '',
+      details: `Domain removed from blacklist: ${blocked.domain}`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Domain removed from blacklist successfully!',
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Send notification to a user or all users
+// @route   POST /api/admin/notifications
+// @access  Private/Admin
+exports.sendNotification = async (req, res) => {
+  try {
+    const { userId, message, type } = req.body;
+    if (!message) {
+      return res.status(400).json({ success: false, message: 'Please provide a message' });
+    }
+
+    if (userId === 'all') {
+      const users = await User.find({ role: 'user' });
+      const notifications = users.map((u) => ({
+        user: u._id,
+        message,
+        type: type || 'info',
+      }));
+      await Notification.insertMany(notifications);
+
+      await AuditLog.create({
+        action: 'NOTIFICATION_SENT_ALL',
+        actor: req.user.id,
+        ip: req.ip || '',
+        details: `Global notification broadcast: "${message}"`,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `Notification broadcasted to ${users.length} users successfully!`,
+      });
+    } else {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ success: false, message: 'User not found' });
+      }
+
+      await Notification.create({
+        user: userId,
+        message,
+        type: type || 'info',
+      });
+
+      await AuditLog.create({
+        action: 'NOTIFICATION_SENT_USER',
+        actor: req.user.id,
+        ip: req.ip || '',
+        details: `Notification sent to user ${user.email}: "${message}"`,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `Notification sent to ${user.name} successfully!`,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
