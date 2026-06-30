@@ -25,4 +25,7 @@ __pycache__/
 data/*.csv
 
 # Checkpoints and training artifacts
-results/bert_checkpoints/
+results/bert_checkpoints/
+
+# Local Database files
+data/
