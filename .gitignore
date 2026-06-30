@@ -28,4 +28,7 @@ data/*.csv
 results/bert_checkpoints/
 
 # Local Database files
-data/
+data/
+
+# Local Research Figures
+research_figures/
